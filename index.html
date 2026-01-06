@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Campus Tour</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="landing-page">
+      <div class="landing-content">
+        <div class="logo-section">
+          <h1 class="college-name">Welcome to CEP</h1>
+          <p class="tagline">Experience Your Campus in 3D</p>
+        </div>
+        <button id="start-tour-btn" class="start-btn">
+          <span>🎓</span> Start Walkthrough
+        </button>
+        <div class="features">
+          <div class="feature">
+            <span class="icon">🚶</span>
+            <p>Walk Through Campus</p>
+          </div>
+          <div class="feature">
+            <span class="icon">🏛️</span>
+            <p>Explore Buildings</p>
+          </div>
+          <div class="feature">
+            <span class="icon">360°</span>
+            <p>Full 360° View</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="controls-info" class="hidden">
+      <div class="controls-panel">
+        <p><strong>Controls:</strong></p>
+        <p>WASD / Arrow Keys - Move</p>
+        <p>Mouse - Look Around</p>
+        <p>ESC - Exit</p>
+      </div>
+    </div>
+
+    <div id="loading">Loading campus model...</div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
