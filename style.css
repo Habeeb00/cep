@@ -178,3 +178,114 @@ body {
 canvas {
   display: block;
 }
+
+/* Mobile Controls */
+.mobile-controls {
+  display: none;
+}
+
+.desktop-controls {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-controls {
+    display: block;
+  }
+
+  .desktop-controls {
+    display: none;
+  }
+
+  .college-name {
+    font-size: 2.5rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+
+  .start-btn {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+  }
+
+  .features {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  #controls-info {
+    bottom: 140px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .controls-panel {
+    padding: 10px 15px;
+    font-size: 0.8rem;
+  }
+}
+
+#mobile-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+#mobile-controls.hidden {
+  display: none;
+}
+
+/* Movement Joystick */
+#joystick-container {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 120px;
+  height: 120px;
+  pointer-events: auto;
+}
+
+#joystick-base {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(
+    circle,
+    rgba(76, 175, 80, 0.3),
+    rgba(76, 175, 80, 0.1)
+  );
+  border: 3px solid rgba(76, 175, 80, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+#joystick-stick {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(
+    circle,
+    rgba(76, 175, 80, 0.9),
+    rgba(69, 160, 73, 0.7)
+  );
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  touch-action: none;
+  transition: transform 0.1s ease;
+}
+
+@media (min-width: 769px) {
+  #mobile-controls {
+    display: none !important;
+  }
+}

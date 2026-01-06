@@ -22,10 +22,6 @@
             <p>Walk Through Campus</p>
           </div>
           <div class="feature">
-            <span class="icon">🏛️</span>
-            <p>Explore Buildings</p>
-          </div>
-          <div class="feature">
             <span class="icon">360°</span>
             <p>Full 360° View</p>
           </div>
@@ -36,9 +32,20 @@
     <div id="controls-info" class="hidden">
       <div class="controls-panel">
         <p><strong>Controls:</strong></p>
-        <p>WASD / Arrow Keys - Move</p>
-        <p>Mouse - Look Around</p>
+        <p class="desktop-controls">WASD / Arrow Keys - Move</p>
+        <p class="desktop-controls">Mouse - Look Around</p>
+        <p class="mobile-controls">Use joystick to move</p>
+        <p class="mobile-controls">Touch & drag to look</p>
         <p>ESC - Exit</p>
+      </div>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls" class="hidden">
+      <!-- Movement Joystick -->
+      <div id="joystick-container">
+        <div id="joystick-base"></div>
+        <div id="joystick-stick"></div>
       </div>
     </div>
 

@@ -102,9 +102,15 @@ function animateCameraToStart() {
       cameraAnimating = false;
       tourStarted = true;
       controlsInfo.classList.remove("hidden");
-      // Enable controls after animation
-      document.body.click();
-      setTimeout(() => controls.lock(), 100);
+
+      // Show mobile controls on mobile devices
+      if (isMobile) {
+        mobileControls.classList.remove("hidden");
+      } else {
+        // Enable pointer lock on desktop
+        document.body.click();
+        setTimeout(() => controls.lock(), 100);
+      }
     }
   }
 
@@ -177,6 +183,127 @@ document.addEventListener("keyup", (event) => {
       moveState.right = false;
       break;
   }
+});
+
+// Mobile Controls
+const isMobile =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+const mobileControls = document.getElementById("mobile-controls");
+const joystickContainer = document.getElementById("joystick-container");
+const joystickStick = document.getElementById("joystick-stick");
+
+let joystickActive = false;
+let joystickDirection = { x: 0, y: 0 };
+
+// Touch look controls
+let touchStartX = 0;
+let touchStartY = 0;
+let lookSensitivity = 0.002;
+const euler = new THREE.Euler(0, 0, 0, "YXZ");
+
+// Joystick controls
+joystickContainer.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  joystickActive = true;
+  updateJoystick(e.touches[0]);
+});
+
+joystickContainer.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  if (joystickActive) {
+    updateJoystick(e.touches[0]);
+  }
+});
+
+joystickContainer.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  joystickActive = false;
+  joystickDirection = { x: 0, y: 0 };
+  joystickStick.style.transform = "translate(-50%, -50%)";
+  moveState.forward = false;
+  moveState.backward = false;
+  moveState.left = false;
+  moveState.right = false;
+});
+
+function updateJoystick(touch) {
+  const rect = joystickContainer.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  let deltaX = touch.clientX - centerX;
+  let deltaY = touch.clientY - centerY;
+
+  const maxDistance = 35;
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  if (distance > maxDistance) {
+    deltaX = (deltaX / distance) * maxDistance;
+    deltaY = (deltaY / distance) * maxDistance;
+  }
+
+  joystickStick.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+
+  joystickDirection.x = deltaX / maxDistance;
+  joystickDirection.y = deltaY / maxDistance;
+
+  // Update move state based on joystick
+  moveState.forward = joystickDirection.y < -0.3;
+  moveState.backward = joystickDirection.y > 0.3;
+  moveState.left = joystickDirection.x < -0.3;
+  moveState.right = joystickDirection.x > 0.3;
+}
+
+// Touch look controls (touch anywhere except joystick to look around)
+document.addEventListener("touchstart", (e) => {
+  if (!tourStarted || cameraAnimating) return;
+
+  // Ignore if touching joystick
+  const touch = e.touches[0];
+  const rect = joystickContainer.getBoundingClientRect();
+  if (
+    touch.clientX >= rect.left &&
+    touch.clientX <= rect.right &&
+    touch.clientY >= rect.top &&
+    touch.clientY <= rect.bottom
+  ) {
+    return;
+  }
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+document.addEventListener("touchmove", (e) => {
+  if (!tourStarted || cameraAnimating) return;
+
+  const touch = e.touches[0];
+
+  // Ignore if touching joystick
+  const rect = joystickContainer.getBoundingClientRect();
+  if (
+    touch.clientX >= rect.left &&
+    touch.clientX <= rect.right &&
+    touch.clientY >= rect.top &&
+    touch.clientY <= rect.bottom
+  ) {
+    return;
+  }
+
+  const movementX = touch.clientX - touchStartX;
+  const movementY = touch.clientY - touchStartY;
+
+  euler.setFromQuaternion(camera.quaternion);
+  euler.y -= movementX * lookSensitivity;
+  euler.x -= movementY * lookSensitivity;
+  euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+
+  camera.quaternion.setFromEuler(euler);
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
 });
 
 // Load campus GLB model
@@ -273,7 +400,12 @@ function animate() {
 
   const delta = clock.getDelta();
 
-  if (controls.isLocked && !cameraAnimating) {
+  // Handle movement for both desktop and mobile
+  if ((controls.isLocked || (isMobile && tourStarted)) && !cameraAnimating) {
+    // Reset velocity
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+
     direction.z = Number(moveState.forward) - Number(moveState.backward);
     direction.x = Number(moveState.right) - Number(moveState.left);
     direction.normalize();
@@ -286,8 +418,23 @@ function animate() {
       velocity.x -= direction.x * moveSpeed * delta;
     }
 
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
+    if (isMobile) {
+      // For mobile, manually move camera
+      const forward = new THREE.Vector3();
+      camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize();
+
+      const right = new THREE.Vector3();
+      right.crossVectors(forward, camera.up).normalize();
+
+      camera.position.addScaledVector(forward, -velocity.z * delta);
+      camera.position.addScaledVector(right, -velocity.x * delta);
+    } else {
+      // Desktop pointer lock controls
+      controls.moveRight(-velocity.x * delta);
+      controls.moveForward(-velocity.z * delta);
+    }
 
     // Keep camera at eye level
     camera.position.y = 1.7;
